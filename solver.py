@@ -1,4 +1,3 @@
-from constants import *
 from utils import *
 import operator
 from functools import reduce
@@ -336,49 +335,50 @@ to prevent them.
     return extra_clauses
 
 
-def show_solution(options, colors, decoded):
+def show_solution(options, values, decoded):
     """Print the puzzle solution to the terminal."""
 
-    # make an array to flip the key/value in the colors dict so we can
+    # make an array to flip the key/value in the values dict so we can
     # index characters numerically:
 
-    color_chars = [None] * len(colors)
+    value_chars = [None] * len(values)
 
-    # do_color = options.display_color
-    do_color = None
+    # do_value = options.display_value
+    # do_value = None
 
-    for char, color in colors.items():
-        color_chars[color] = char
-        # do_color = do_color and ANSI_LOOKUP.has_key(char)
+    for char, value in values.items():
+        value_chars[value] = char
+        # do_value = do_value and ANSI_LOOKUP.has_key(char)
 
     for decoded_row in decoded:
-        for (color, dir_type) in decoded_row:
+        for (value, dir_type) in decoded_row:
 
-            assert 0 <= color < len(colors)
+            assert 0 <= value < len(values)
 
-            color_char = color_chars[color]
+            value_char = value_chars[value]
 
             if dir_type == -1:
-                if do_color:
-                    display_char = 'O'
-                else:
-                    display_char = color_char
+                # if do_value:
+                #     display_char = 'O'
+                # else:
+                display_char = value_char
             else:
                 display_char = DIR_LOOKUP[dir_type]
 
-            if do_color:
-
-                if color_char in ANSI_LOOKUP:
-                    ansi_code = ANSI_CELL_FORMAT.format(
-                        ANSI_LOOKUP[color_char])
-                else:
-                    ansi_code = ANSI_RESET
-
-                sys.stdout.write(ansi_code)
+            # if do_value:
+            #
+            #     if value_char in ANSI_LOOKUP:
+            #         ansi_code = ANSI_CELL_FORMAT.format(
+            #             ANSI_LOOKUP[value_char])
+            #     else:
+            #         ansi_code = ANSI_RESET
+            #
+            #     sys.stdout.write(ansi_code)
 
             sys.stdout.write(display_char)
+            sys.stdout.write(' ')
 
-        # if options.display_color:
+        # if options.display_value:
         sys.stdout.write(ANSI_RESET)
 
         sys.stdout.write('\n')
@@ -431,7 +431,7 @@ needed.
             repairs, solve_time))
         # print(decoded)
         # print
-        # show_solution(options, colors, decoded)
+        # show_solution(options, values, decoded)
         # print
         print(show_solution(options, values, decoded))
 
@@ -439,12 +439,12 @@ needed.
 
 
 options = None
-with open('puzzles/regular_5x5_01.txt', 'r') as infile:
-    # puzzle, colors = parse_puzzle(options, infile, filename)
-    board, values = parse_puzzle(options, infile, filename='puzzles/regular_5x5_01.txt')
+with open('puzzles/regular_6x6_01.txt', 'r') as infile:
+    # puzzle, values = parse_puzzle(options, infile, filename)
+    board, values = parse_puzzle(options, infile, filename='puzzles/regular_6x6_01.txt')
 
-color_var, dir_vars, num_vars, clauses, reduce_time = reduce_to_sat(options, board, values)
+value_var, dir_vars, num_vars, clauses, reduce_time = reduce_to_sat(options, board, values)
 
-sol, _, repairs, solve_time = solve_sat(options, board, values, color_var, dir_vars, clauses)
+sol, _, repairs, solve_time = solve_sat(options, board, values, value_var, dir_vars, clauses)
 
 # print(sol)
