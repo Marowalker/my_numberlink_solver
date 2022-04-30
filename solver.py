@@ -141,7 +141,7 @@ directions imply value matching with neighbors.
     return dir_clauses
 
 
-def reduce_to_sat(options, puzzle, values):
+def reduce_to_sat(puzzle, values):
     """Reduces the given puzzle to a SAT problem specified in CNF. Returns
 a list of clauses where each clause is a list of single SAT variables,
 possibly negated.
@@ -335,16 +335,13 @@ to prevent them.
     return extra_clauses
 
 
-def show_solution(options, values, decoded):
+def show_solution(values, decoded):
     """Print the puzzle solution to the terminal."""
 
     # make an array to flip the key/value in the values dict so we can
     # index characters numerically:
 
     value_chars = [None] * len(values)
-
-    # do_value = options.display_value
-    # do_value = None
 
     for char, value in values.items():
         value_chars[value] = char
@@ -358,33 +355,19 @@ def show_solution(options, values, decoded):
             value_char = value_chars[value]
 
             if dir_type == -1:
-                # if do_value:
-                #     display_char = 'O'
-                # else:
                 display_char = value_char
             else:
                 display_char = DIR_LOOKUP[dir_type]
 
-            # if do_value:
-            #
-            #     if value_char in ANSI_LOOKUP:
-            #         ansi_code = ANSI_CELL_FORMAT.format(
-            #             ANSI_LOOKUP[value_char])
-            #     else:
-            #         ansi_code = ANSI_RESET
-            #
-            #     sys.stdout.write(ansi_code)
-
             sys.stdout.write(display_char)
             sys.stdout.write(' ')
 
-        # if options.display_value:
-        sys.stdout.write(ANSI_RESET)
+        # sys.stdout.write(ANSI_RESET)
 
         sys.stdout.write('\n')
 
 
-def solve_sat(options, puzzle, values, value_var, dir_vars, clauses):
+def solve_sat(puzzle, values, value_var, dir_vars, clauses):
     """Solve the SAT now that it has been reduced to a list of clauses in
 CNF.  This is an iterative process: first we try to solve a SAT, then
 we detect cycles. If cycles are found, they are prevented from
@@ -429,22 +412,17 @@ needed.
     else:
         print('obtained solution after {:,} cycle repairs and {:.3f} seconds:'.format(
             repairs, solve_time))
-        # print(decoded)
-        # print
-        # show_solution(options, values, decoded)
-        # print
-        print(show_solution(options, values, decoded))
+        print(show_solution(values, decoded))
 
     return sol, decoded, repairs, solve_time
 
 
-options = None
-with open('puzzles/regular_6x6_01.txt', 'r') as infile:
-    # puzzle, values = parse_puzzle(options, infile, filename)
-    board, values = parse_puzzle(options, infile, filename='puzzles/regular_6x6_01.txt')
-
-value_var, dir_vars, num_vars, clauses, reduce_time = reduce_to_sat(options, board, values)
-
-sol, _, repairs, solve_time = solve_sat(options, board, values, value_var, dir_vars, clauses)
-
-# print(sol)
+# with open('puzzles/extreme_8x8_01.txt', 'r') as infile:
+#     # puzzle, values = parse_puzzle(options, infile, filename)
+#     board, values = parse_puzzle(infile, filename='puzzles/extreme_8x8_01.txt')
+#
+# value_var, dir_vars, num_vars, clauses, reduce_time = reduce_to_sat(board, values)
+#
+# sol, _, repairs, solve_time = solve_sat(board, values, value_var, dir_vars, clauses)
+#
+# # print(sol)

@@ -1,6 +1,5 @@
 import itertools
 from constants import *
-from collections import defaultdict
 
 
 def all_pairs(collection):
@@ -49,10 +48,10 @@ column j."""
             if valid_pos(size, ni, nj))
 
 
-def parse_puzzle(options, file_or_str, filename='input'):
+def parse_puzzle(file_or_str, filename='input'):
 
     """Convert the given string or file object into a square array of
-strings. Also return a dictionary which maps input characters to color
+strings. Also return a dictionary which maps input characters to value
 indices.
     """
 
@@ -72,9 +71,9 @@ indices.
     # truncate extraneous lines
     puzzle = puzzle[:size]
 
-    # count colors and build lookup
-    colors = dict()
-    color_count = []
+    # count values and build lookup
+    values = dict()
+    value_count = []
 
     for i, row in enumerate(puzzle):
         if len(row) != size:
@@ -82,26 +81,26 @@ indices.
             return None, None
         for j, char in enumerate(row):
             if char.isalnum(): # flow endpoint
-                if char in colors:
-                    color = colors[char]
-                    if color_count[color]:
+                if char in values:
+                    value = values[char]
+                    if value_count[value]:
                         print('{}:{}:{} too many {} already'.format(
                             filename, i+1, j, char))
                         return None, None
-                    color_count[color] = 1
+                    value_count[value] = 1
                 else:
-                    color = len(colors)
-                    colors[char] = color
-                    color_count.append(0)
+                    value = len(values)
+                    values[char] = value
+                    value_count.append(0)
 
     # check parity
-    for char, color in colors.items():
-        if not color_count[color]:
-            print('color {} has start but no end!'.format(char))
+    for char, value in values.items():
+        if not value_count[value]:
+            print('value {} has start but no end!'.format(char))
             return None, None
 
     # print info
-    print('read {}x{} puzzle with {} colors from {}'.format(
-        size, size, len(colors), filename))
+    print('read {}x{} puzzle with {} values from {}'.format(
+        size, size, len(values), filename))
 
-    return puzzle, colors
+    return puzzle, values
