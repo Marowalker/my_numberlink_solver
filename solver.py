@@ -2,7 +2,8 @@ from utils import *
 import operator
 from functools import reduce
 import datetime
-import pycosat
+# import pycosat
+from pysat.solvers import Minisat22
 import sys
 
 
@@ -382,9 +383,15 @@ needed.
     all_decoded = []
     repairs = 0
 
+    sol = Minisat22()
+    for c in clauses:
+        sol.add_clause(c)
+
     while True:
 
-        sol = pycosat.solve(clauses)  # pylint: disable=E1101
+        # sol = pycosat.solve(clauses)  # pylint: disable=E1101
+        sol.solve()
+        sol = sol.get_model()
 
         if not isinstance(sol, list):
             decoded = None
