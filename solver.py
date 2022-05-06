@@ -15,7 +15,8 @@ encodes a single value in a one-hot fashion.
 
     clauses = []
     num_values = len(values)
-    size = len(puzzle)
+    height = len(puzzle)
+    width = min([len(r.split(' ')) for r in puzzle])
 
     # for each cell
     for i, j, char in explode(puzzle):
@@ -34,7 +35,7 @@ encodes a single value in a one-hot fashion.
 
             # gather neighbors' variables for this value
             neighbor_vars = [value_var(ni, nj, endpoint_value) for
-                             _, ni, nj in valid_neighbors(size, i, j)]
+                             _, ni, nj in valid_neighbors(width, height, i, j)]
 
             # one neighbor has this value
             clauses.append(neighbor_vars)
@@ -60,7 +61,8 @@ encodes a single value in a one-hot fashion.
 def make_dir_vars(puzzle, start_var):
     """Creates the direction-type SAT variables for each cell."""
 
-    size = len(puzzle)
+    height = len(puzzle)
+    width = min([len(r.split(' ')) for r in puzzle])
     dir_vars = dict()
     num_dir_vars = 0
 
@@ -71,7 +73,7 @@ def make_dir_vars(puzzle, start_var):
 
         # collect bits for neighbors (TOP BOTTOM LEFT RIGHT)
         neighbor_bits = (dir_bit for (dir_bit, ni, nj)
-                         in valid_neighbors(size, i, j))
+                         in valid_neighbors(width, height, i, j))
 
         # OR them all together
         cell_flags = reduce(operator.or_, neighbor_bits, 0)
@@ -97,7 +99,8 @@ directions imply value matching with neighbors.
 
     dir_clauses = []
     num_values = len(values)
-    size = len(puzzle)
+    height = len(puzzle)
+    width = min([len(r.split(' ')) for r in puzzle])
 
     # for each cell
     for i, j, char in explode(puzzle):
@@ -134,7 +137,7 @@ directions imply value matching with neighbors.
                         # this direction type implies the values are equal
                         dir_clauses.append([-dir_var, -value_1, value_2])
                         dir_clauses.append([-dir_var, value_1, -value_2])
-                    elif valid_pos(size, n_i, n_j):
+                    elif valid_pos(width, height, n_i, n_j):
                         # neighbor is not along this direction type,
                         # so this direction type implies the values are not equal
                         dir_clauses.append([-dir_var, -value_1, -value_2])
@@ -148,17 +151,18 @@ a list of clauses where each clause is a list of single SAT variables,
 possibly negated.
     """
 
-    size = len(puzzle)
+    height = len(puzzle)
+    width = min([len(r.split(' ')) for r in puzzle])
     num_values = len(values)
 
-    num_cells = size ** 2
+    num_cells = height * width
     num_value_vars = num_values * num_cells
 
     def value_var(i, j, value):
         """Return the index of the SAT variable for the given value in row i,
  column j.
         """
-        return (i * size + j) * num_values + value + 1
+        return (i * width + j) * num_values + value + 1
 
     start = datetime.datetime.now()
 
@@ -193,8 +197,9 @@ one-hot encoding in each cell for value and direction-type. Returns a
     for i, row in enumerate(puzzle):
 
         decoded_row = []
-
-        for j, char in enumerate(row):
+        elems = row.split(' ')
+        # for j, char in enumerate(row):
+        for j, char in enumerate(elems):
 
             # find which value variable for this cell is in the
             # solution set
@@ -234,7 +239,8 @@ found. Returns a list of (row, column) pairs on the path, as well as a
 boolean flag indicating if a cycle was detected.
     """
 
-    size = len(decoded)
+    height = len(decoded)
+    width = min([len(r) for r in decoded])
 
     run = []
     is_cycle = False
@@ -250,7 +256,7 @@ boolean flag indicating if a cycle was detected.
         run.append((cur_i, cur_j))
 
         # loop over valid neighbors
-        for dir_bit, n_i, n_j in valid_neighbors(size, cur_i, cur_j):
+        for dir_bit, n_i, n_j in valid_neighbors(width, height, cur_i, cur_j):
 
             # do not consider prev pos
             if (n_i, n_j) == (prev_i, prev_j):
@@ -293,9 +299,11 @@ return the CNF clauses that need to be added to the problem in order
 to prevent them.
     """
 
-    size = len(decoded)
+    height = len(decoded)
+    width = min([len(r) for r in decoded])
+
     values_seen = set()
-    visited = [[0] * size for _ in range(size)]
+    visited = [[0] * width for _ in range(height)]
 
     # for each cell
     for i, j, (value, dir_type) in explode(decoded):
@@ -313,8 +321,7 @@ to prevent them.
     # see if there are any unvisited cells, if so they have cycles
     extra_clauses = []
 
-    for i, j in itertools.product(range(size), range(size)):
-
+    for i, j in itertools.product(range(height), range(width)):
         if not visited[i][j]:
 
             # get the path
@@ -419,17 +426,17 @@ needed.
     else:
         print('obtained solution after {:,} cycle repairs and {:.3f} seconds:'.format(
             repairs, solve_time))
-        print(show_solution(values, decoded))
+        show_solution(values, decoded)
 
     return sol, decoded, repairs, solve_time
 
 
-# with open('puzzles/extreme_8x8_01.txt', 'r') as infile:
-#     # puzzle, values = parse_puzzle(options, infile, filename)
-#     board, values = parse_puzzle(infile, filename='puzzles/extreme_8x8_01.txt')
-#
-# value_var, dir_vars, num_vars, clauses, reduce_time = reduce_to_sat(board, values)
-#
-# sol, _, repairs, solve_time = solve_sat(board, values, value_var, dir_vars, clauses)
-#
-# # print(sol)
+with open('puzzles/extreme_12x12_65.txt', 'r') as infile:
+    # puzzle, values = parse_puzzle(options, infile, filename)
+    board, values = parse_puzzle(infile, filename='puzzles/extreme_12x12_65.txt')
+
+value_var, dir_vars, num_vars, clauses, reduce_time = reduce_to_sat(board, values)
+
+sol, _, repairs, solve_time = solve_sat(board, values, value_var, dir_vars, clauses)
+
+# print(sol)

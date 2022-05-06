@@ -24,13 +24,17 @@ nested 'for' loops.
     """
 
     for i, row in enumerate(puzzle):
-        for j, char in enumerate(row):
+        if isinstance(row, str):
+            elems = row.split(' ')
+        else:
+            elems = row
+        for j, char in enumerate(elems):
             yield i, j, char
 
 
-def valid_pos(size, i, j):
+def valid_pos(width, height, i, j):
     """Check whether a position on a square grid is valid."""
-    return 0 <= i < size and 0 <= j < size
+    return 0 <= i < height and 0 <= j < width
 
 
 def all_neighbors(i, j):
@@ -39,13 +43,13 @@ def all_neighbors(i, j):
             for (dir_bit, delta_i, delta_j) in DELTAS)
 
 
-def valid_neighbors(size, i, j):
+def valid_neighbors(width, height, i, j):
     """Return all actual on-grid neighbors of a grid square at row i,
 column j."""
 
     return ((dir_bit, ni, nj) for (dir_bit, ni, nj)
             in all_neighbors(i, j)
-            if valid_pos(size, ni, nj))
+            if valid_pos(width, height, ni, nj))
 
 
 def parse_puzzle(file_or_str, filename='input'):
@@ -61,26 +65,21 @@ indices.
     puzzle = file_or_str.splitlines()
 
     # assume size based on length of first line
-    size = len(puzzle[0])
-
-    # make sure enough lines
-    if len(puzzle) < size:
-        print('{}:{} unexpected EOF'.format(filename, len(puzzle)+1))
-        return None, None
-
-    # truncate extraneous lines
-    puzzle = puzzle[:size]
+    width = min([len(r.split(' ')) for r in puzzle])
+    height = len(puzzle)
+    # size = len(puzzle[0])
 
     # count values and build lookup
     values = dict()
     value_count = []
 
     for i, row in enumerate(puzzle):
-        if len(row) != size:
+        elems = row.split(' ')
+        if len(elems) != width:
             print('{}:{} row size mismatch'.format(filename, i+1))
             return None, None
-        for j, char in enumerate(row):
-            if char.isalnum(): # flow endpoint
+        for j, char in enumerate(elems):
+            if char.isalnum():  # flow endpoint
                 if char in values:
                     value = values[char]
                     if value_count[value]:
@@ -101,6 +100,6 @@ indices.
 
     # print info
     print('read {}x{} puzzle with {} values from {}'.format(
-        size, size, len(values), filename))
+        width, height, len(values), filename))
 
     return puzzle, values
