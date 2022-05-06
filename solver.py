@@ -431,9 +431,9 @@ needed.
     return sol, decoded, repairs, solve_time
 
 
-with open('puzzles/extreme_12x12_65.txt', 'r') as infile:
+with open('puzzles/extreme_14x14_98.txt', 'r') as infile:
     # puzzle, values = parse_puzzle(options, infile, filename)
-    board, values = parse_puzzle(infile, filename='puzzles/extreme_12x12_65.txt')
+    board, values = parse_puzzle(infile, filename='puzzles/extreme_14x14_98.txt')
 
 value_var, dir_vars, num_vars, clauses, reduce_time = reduce_to_sat(board, values)
 
