@@ -430,13 +430,13 @@ needed.
     return res, decoded, repairs, solve_time
 
 
-with open('puzzles/extreme_36x20_220.txt', 'r') as infile:
-    # puzzle, values = parse_puzzle(options, infile, filename)
-    board, values = parse_puzzle(infile, filename='puzzles/extreme_36x20_220.txt')
-    # print(board)
-
-value_var, dir_vars, num_vars, clauses, reduce_time = reduce_to_sat(board, values)
-
-sol, _, repairs, solve_time = solve_sat(board, values, value_var, dir_vars, clauses)
+# with open('puzzles/extreme_36x20_220.txt', 'r') as infile:
+#     # puzzle, values = parse_puzzle(options, infile, filename)
+#     board, values = parse_puzzle(infile, filename='puzzles/extreme_36x20_220.txt')
+#     # print(board)
+#
+# value_var, dir_vars, num_vars, clauses, reduce_time = reduce_to_sat(board, values)
+#
+# sol, _, repairs, solve_time = solve_sat(board, values, value_var, dir_vars, clauses)
 
 # print(sol)
