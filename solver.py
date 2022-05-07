@@ -395,17 +395,16 @@ needed.
         sol.add_clause(c)
 
     while True:
-
         # sol = pycosat.solve(clauses)  # pylint: disable=E1101
         sol.solve()
-        sol = sol.get_model()
+        res = sol.get_model()
 
-        if not isinstance(sol, list):
+        if not isinstance(res, list):
             decoded = None
             all_decoded.append(decoded)
             break
 
-        decoded = decode_solution(puzzle, values, value_var, dir_vars, sol)
+        decoded = decode_solution(puzzle, values, value_var, dir_vars, res)
         all_decoded.append(decoded)
 
         extra_clauses = detect_cycles(decoded, dir_vars)
@@ -421,19 +420,20 @@ needed.
     if decoded is None:
         print(
             'solver returned {} after {:,} cycle repairs and {:.3f} seconds'.format(
-                str(sol), repairs, solve_time))
+                str(res), repairs, solve_time))
 
     else:
         print('obtained solution after {:,} cycle repairs and {:.3f} seconds:'.format(
             repairs, solve_time))
         show_solution(values, decoded)
 
-    return sol, decoded, repairs, solve_time
+    return res, decoded, repairs, solve_time
 
 
-with open('puzzles/extreme_25x25_60.txt', 'r') as infile:
+with open('puzzles/extreme_25x25_02.txt', 'r') as infile:
     # puzzle, values = parse_puzzle(options, infile, filename)
-    board, values = parse_puzzle(infile, filename='puzzles/extreme_25x25_60.txt')
+    board, values = parse_puzzle(infile, filename='puzzles/extreme_25x25_02.txt')
+    # print(board)
 
 value_var, dir_vars, num_vars, clauses, reduce_time = reduce_to_sat(board, values)
 
